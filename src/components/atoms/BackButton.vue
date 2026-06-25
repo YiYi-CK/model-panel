@@ -7,13 +7,15 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { ArrowBackOutlined } from '@vicons/antd';
 
 const props = defineProps({
   to: { type: String, default: '' },
-  text: { type: String, default: '返回' },
+  text: { type: String, default: '' },
 });
 const router = useRouter();
+const { t } = useI18n();
 
 function goBack() {
   if (props.to) {

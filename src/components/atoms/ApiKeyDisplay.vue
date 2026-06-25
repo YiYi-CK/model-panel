@@ -6,12 +6,13 @@
         📋
       </n-button>
     </template>
-    <span v-else class="key-none">未设置</span>
+    <span v-else class="key-none">{{ $t('provider.apiKeyNotSet') }}</span>
   </span>
 </template>
 
 <script setup>
 import { useMessage } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   maskedKey: { type: String, default: null },
@@ -19,10 +20,10 @@ const props = defineProps({
 });
 
 const message = useMessage();
+const { t } = useI18n();
 
 function copyToClipboard() {
-  // API Key 已脱敏，不能复制完整值
-  message.info('API Key 已脱敏保护，无法复制完整值');
+  message.info(t('common.apiKeyInfo'));
 }
 </script>
 

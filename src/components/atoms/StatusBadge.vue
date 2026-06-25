@@ -9,6 +9,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   status: {
@@ -19,15 +20,17 @@ const props = defineProps({
   text: { type: String, default: '' },
 });
 
+const { t } = useI18n();
+
 const statusMap = {
-  running: { type: 'success', text: '运行中' },
-  error: { type: 'error', text: '异常' },
-  unknown: { type: 'default', text: '未知' },
-  offline: { type: 'default', text: '离线' },
+  running: { type: 'success', text: t('status.running') },
+  error: { type: 'error', text: t('status.error') },
+  unknown: { type: 'default', text: t('status.unknown') },
+  offline: { type: 'default', text: t('status.offline') },
 };
 
 const tagType = computed(() => statusMap[props.status]?.type || 'default');
-const displayText = computed(() => props.text || statusMap[props.status]?.text || '未知');
+const displayText = computed(() => props.text || statusMap[props.status]?.text || t('status.unknown'));
 </script>
 
 <style scoped>

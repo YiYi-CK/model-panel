@@ -13,6 +13,8 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
 defineProps({
   modelValue: { type: String, default: '' },
   label: { type: String, default: '' },
@@ -23,4 +25,5 @@ defineProps({
   maxlength: { type: Number, default: undefined },
 });
 defineEmits(['update:modelValue']);
+const { t } = useI18n();
 </script>

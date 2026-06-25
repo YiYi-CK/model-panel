@@ -12,12 +12,15 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
 defineProps({
   modelValue: { type: [String, Number], default: null },
   label: { type: String, default: '' },
   options: { type: Array, default: () => [] },
-  placeholder: { type: String, default: '请选择' },
+  placeholder: { type: String, default: '' },
   disabled: { type: Boolean, default: false },
 });
 defineEmits(['update:modelValue']);
+const { t } = useI18n();
 </script>

@@ -3,24 +3,24 @@
     <div class="login-form">
       <div class="logo-area">
         <span class="logo-icon">🦊</span>
-        <h1>OpenClaw 模型管理</h1>
+        <h1>{{ $t('app.title') }}</h1>
       </div>
 
       <n-form ref="formRef" :model="form" :rules="rules" @submit.prevent="handleLogin">
-        <n-form-item path="username" label="用户名">
+        <n-form-item path="username" :label="$t('login.username')">
           <n-input
             v-model:value="form.username"
-            placeholder="Linux 系统账号"
+            :placeholder="$t('login.usernamePlaceholder')"
             :disabled="loading"
             @keydown.enter="handleLogin"
           />
         </n-form-item>
 
-        <n-form-item path="password" label="密码">
+        <n-form-item path="password" :label="$t('login.password')">
           <n-input
             v-model:value="form.password"
             type="password"
-            placeholder="输入密码"
+            :placeholder="$t('login.passwordPlaceholder')"
             :disabled="loading"
             show-password-on="click"
             @keydown.enter="handleLogin"
@@ -29,7 +29,7 @@
 
         <n-form-item>
           <n-switch v-model:value="form.rememberMe" :disabled="loading" />
-          <span class="remember-label">记住我 (24小时)</span>
+          <span class="remember-label">{{ $t('login.rememberMe') }}</span>
         </n-form-item>
 
         <n-form-item>
@@ -39,7 +39,7 @@
             :loading="loading"
             @click="handleLogin"
           >
-            {{ loading ? '登录中...' : '登录' }}
+            {{ loading ? $t('login.submitting') : $t('login.submit') }}
           </n-button>
         </n-form-item>
       </n-form>
@@ -48,14 +48,16 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useNotification } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import api from '@/api';
 
 const router = useRouter();
 const notification = useNotification();
+const { t } = useI18n();
 const loading = ref(false);
 
 const form = reactive({
@@ -64,15 +66,15 @@ const form = reactive({
   rememberMe: false,
 });
 
-const rules = {
+const rules = computed(() => ({
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { max: 32, message: '用户名过长', trigger: 'blur' },
+    { required: true, message: t('login.usernameRequired'), trigger: 'blur' },
+    { max: 32, message: t('login.usernameTooLong'), trigger: 'blur' },
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
+    { required: true, message: t('login.passwordRequired'), trigger: 'blur' },
   ],
-};
+}));
 
 async function handleLogin() {
   if (loading.value) return;
@@ -90,22 +92,22 @@ async function handleLogin() {
       router.push('/dashboard');
     } else {
       notification.error({
-        title: '登录失败',
-        content: res.data.error || '用户名或密码错误',
+        title: t('login.failed'),
+        content: res.data.error || t('login.wrongCreds'),
         duration: 3000,
       });
     }
   } catch (err) {
     if (err.response && err.response.data) {
       notification.error({
-        title: '登录失败',
-        content: err.response.data.error || '用户名或密码错误',
+        title: t('login.failed'),
+        content: err.response.data.error || t('login.wrongCreds'),
         duration: 3000,
       });
     } else {
       notification.error({
-        title: '连接失败',
-        content: '无法连接到服务器，请检查网络',
+        title: t('login.failed'),
+        content: t('login.networkError'),
         duration: 3000,
       });
     }

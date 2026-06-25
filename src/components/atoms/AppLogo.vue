@@ -1,11 +1,13 @@
 <template>
   <div class="app-logo">
     <span class="logo-icon">🦊</span>
-    <h1>OpenClaw 模型管理</h1>
+    <h1>{{ $t('app.title') }}</h1>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 </script>
 
 <style scoped>

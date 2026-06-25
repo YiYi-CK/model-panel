@@ -1,32 +1,32 @@
 <template>
   <MainLayout>
     <div class="dashboard">
-      <h2 class="page-title">配置概览</h2>
+      <h2 class="page-title">{{ $t('dashboard.title') }}</h2>
 
       <!-- 统计卡片 -->
       <n-grid v-if="!loading" :cols="4" :x-gap="16" :y-gap="16" responsive="screen">
         <n-grid-item>
           <n-card class="stat-card" hoverable @click="$router.push('/providers')">
-            <div class="stat-label">Provider 数量</div>
+            <div class="stat-label">{{ $t('dashboard.providerCount') }}</div>
             <div class="stat-value">{{ dashboard.providerCount }}</div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="stat-card">
-            <div class="stat-label">总 Model 数</div>
+            <div class="stat-label">{{ $t('dashboard.modelCount') }}</div>
             <div class="stat-value">{{ dashboard.totalModelCount }}</div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="stat-card">
-            <div class="stat-label">配置模式</div>
+            <div class="stat-label">{{ $t('dashboard.configMode') }}</div>
             <div class="stat-value--code">{{ dashboard.mode }}</div>
           </n-card>
         </n-grid-item>
         <n-grid-item>
           <n-card class="stat-card">
-            <div class="stat-label">默认模型</div>
-            <div class="stat-value--code">{{ dashboard.defaultModel || '未设置' }}</div>
+            <div class="stat-label">{{ $t('dashboard.defaultModel') }}</div>
+            <div class="stat-value--code">{{ dashboard.defaultModel || $t('dashboard.notSet') }}</div>
           </n-card>
         </n-grid-item>
       </n-grid>
@@ -42,12 +42,12 @@
 
       <!-- 默认模型设置 -->
       <n-card class="info-card" v-if="!loading && models.length > 0">
-        <h3>默认模型</h3>
+        <h3>{{ $t('dashboard.defaultModel') }}</h3>
         <div class="model-setting">
           <n-select
             v-model:value="selectedModel"
             :options="modelOptions"
-            placeholder="选择默认模型"
+            :placeholder="$t('dashboard.selectModel')"
             style="width: 360px"
             :consistent-menu-width="false"
           />
@@ -57,7 +57,7 @@
             :loading="saving"
             @click="saveDefaultModel"
           >
-            {{ saving ? '保存中...' : '保存' }}
+            {{ saving ? $t('dashboard.saving') : $t('dashboard.save') }}
           </n-button>
         </div>
       </n-card>
@@ -66,7 +66,7 @@
       <n-card class="info-card" v-if="!loading">
         <n-space vertical :size="12">
           <div class="info-row">
-            <span class="info-label">配置文件 Hash</span>
+            <span class="info-label">{{ $t('dashboard.configHash') }}</span>
             <code class="info-code">{{ dashboard.configHash }}</code>
           </div>
         </n-space>
@@ -74,10 +74,10 @@
 
       <!-- 空态引导 -->
       <n-card v-if="!loading && dashboard.providerCount === 0" class="empty-card">
-        <n-empty description="暂无配置任何 Provider">
+        <n-empty :description="$t('dashboard.noProvider')">
           <template #extra>
             <n-button type="primary" @click="$router.push('/providers')">
-              前往添加 Provider
+              {{ $t('dashboard.goAdd') }}
             </n-button>
           </template>
         </n-empty>
@@ -85,9 +85,9 @@
 
       <!-- 错误态 -->
       <n-card v-if="error" class="error-card">
-        <n-result status="error" title="获取配置失败" :description="error">
+        <n-result status="error" :title="$t('dashboard.fetchFailed')" :description="error">
           <template #footer>
-            <n-button @click="fetchDashboard">重试</n-button>
+            <n-button @click="fetchDashboard">{{ $t('dashboard.retry') }}</n-button>
           </template>
         </n-result>
       </n-card>
@@ -98,10 +98,12 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useNotification } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import MainLayout from '@/layouts/MainLayout.vue';
 import api from '@/api';
 
 const notification = useNotification();
+const { t } = useI18n();
 const loading = ref(true);
 const error = ref('');
 const saving = ref(false);
@@ -136,7 +138,7 @@ async function fetchDashboard() {
     models.value = modelsRes.data.models || [];
     selectedModel.value = dashboard.defaultModel;  // 默认选中当前值
   } catch (err) {
-    error.value = err.response?.data?.error || '获取仪表盘数据失败';
+    error.value = err.response?.data?.error || t('dashboard.fetchFailed');
   } finally {
     loading.value = false;
   }
@@ -149,14 +151,14 @@ async function saveDefaultModel() {
     const res = await api.put('/default-model', { model: selectedModel.value });
     dashboard.defaultModel = selectedModel.value;
     notification.success({
-      title: '设置成功',
-      content: res.data.message || '默认模型已更新',
+      title: t('dashboard.saveSuccess'),
+      content: res.data.message || t('dashboard.defaultUpdated'),
       duration: 3000,
     });
   } catch (err) {
     notification.error({
-      title: '设置失败',
-      content: err.response?.data?.error || '操作失败',
+      title: t('dashboard.saveFailed'),
+      content: err.response?.data?.error || t('common.operationFailed'),
       duration: 3000,
     });
   } finally {

@@ -16,17 +16,19 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   show: { type: Boolean, default: false },
-  title: { type: String, default: '确认操作' },
+  title: { type: String, default: '' },
   content: { type: String, default: '' },
-  confirmText: { type: String, default: '确定' },
-  cancelText: { type: String, default: '取消' },
+  confirmText: { type: String, default: '' },
+  cancelText: { type: String, default: '' },
   type: { type: String, default: 'warning' },
 });
 
 defineEmits(['confirm', 'cancel', 'update:show']);
+const { t } = useI18n();
 
 const positiveButtonProps = computed(() => {
   const typeMap = { warning: { type: 'warning' }, error: { type: 'error' }, info: { type: 'primary' } };

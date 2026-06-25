@@ -1,9 +1,9 @@
 <template>
   <n-drawer v-model:show="show" :width="560" placement="right" @after-leave="handleClose">
-    <n-drawer-content title="批量导入 Model" closable>
+    <n-drawer-content :title="$t('model.importTitle')" closable>
       <!-- JSON 输入 -->
       <div class="import-section">
-        <p class="import-hint">粘贴 JSON 格式的模型列表（数组）：</p>
+        <p class="import-hint">{{ $t('model.importPaste') }}：</p>
         <n-input
           v-model:value="jsonText"
           type="textarea"
@@ -18,7 +18,7 @@
 
       <!-- 预览 -->
       <div v-if="previewModels.length > 0" class="preview-section">
-        <h4>预览 ({{ previewModels.length }} 个模型)</h4>
+        <h4>{{ $t('model.importPreview', { n: previewModels.length }) }}</h4>
         <n-data-table
           :columns="previewColumns"
           :data="previewModels"
@@ -31,14 +31,14 @@
 
       <template #footer>
         <n-space justify="end">
-          <n-button @click="show = false">取消</n-button>
+          <n-button @click="show = false">{{ $t('common.cancel') }}</n-button>
           <n-button
             type="primary"
             :loading="importing"
             :disabled="previewModels.length === 0"
             @click="handleImport"
           >
-            导入 {{ previewModels.length }} 个模型
+            {{ $t('model.importButton', { n: previewModels.length }) }}
           </n-button>
         </n-space>
       </template>
@@ -47,8 +47,9 @@
 </template>
 
 <script setup>
-import { ref, watch, h } from 'vue';
+import { ref, watch, h, computed } from 'vue';
 import { useNotification } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 import api from '@/api';
 
 const props = defineProps({
@@ -58,6 +59,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'saved']);
 const notification = useNotification();
+const { t } = useI18n();
 
 const show = ref(props.show);
 const jsonText = ref('');
@@ -74,12 +76,12 @@ watch(() => props.show, (val) => {
   }
 });
 
-const previewColumns = [
-  { title: 'Model ID', key: 'id', width: 200, render: (row) => h('code', { class: 'id-code' }, row.id) },
+const previewColumns = computed(() => [
+  { title: t('model.modelId'), key: 'id', width: 200, render: (row) => h('code', { class: 'id-code' }, row.id) },
   { title: 'Name', key: 'name', width: 160, render: (row) => row.name || '-' },
   { title: 'Ctx', key: 'contextWindow', width: 80, render: (row) => row.contextWindow ? formatNum(row.contextWindow) : '-' },
-  { title: 'Max Tokens', key: 'maxTokens', width: 90, render: (row) => row.maxTokens ? formatNum(row.maxTokens) : '-' },
-];
+  { title: t('model.maxTokens'), key: 'maxTokens', width: 90, render: (row) => row.maxTokens ? formatNum(row.maxTokens) : '-' },
+]);
 
 function formatNum(n) {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
@@ -95,28 +97,28 @@ function parseJSON() {
   try {
     const parsed = JSON.parse(jsonText.value);
     if (!Array.isArray(parsed)) {
-      parseError.value = 'JSON 必须是数组格式';
+      parseError.value = t('model.jsonNotArray');
       return;
     }
     if (parsed.length === 0) {
-      parseError.value = '数组不能为空';
+      parseError.value = t('model.jsonNotEmpty');
       return;
     }
     // 校验每个元素
     for (let i = 0; i < parsed.length; i++) {
       const m = parsed[i];
       if (!m.id) {
-        parseError.value = `第 ${i + 1} 个元素缺少 id 字段`;
+        parseError.value = t('model.jsonMissingId', { i: i + 1 });
         return;
       }
       if (!/^[a-zA-Z0-9_.-]{2,64}$/.test(m.id)) {
-        parseError.value = `第 ${i + 1} 个元素 id "${m.id}" 格式不正确`;
+        parseError.value = t('model.jsonInvalidId', { i: i + 1, id: m.id });
         return;
       }
     }
     previewModels.value = parsed;
   } catch (e) {
-    parseError.value = `JSON 解析失败: ${e.message}`;
+    parseError.value = t('model.jsonParseError', { message: e.message });
   }
 }
 
@@ -131,15 +133,15 @@ async function handleImport() {
       models: previewModels.value,
     });
     notification.success({
-      title: '导入成功',
-      content: `已导入 ${previewModels.value.length} 个模型`,
+      title: t('model.importSuccess', { n: 0 }),
+      content: t('model.importSuccess', { n: previewModels.value.length }),
       duration: 3000,
     });
     emit('saved');
   } catch (err) {
     notification.error({
-      title: '导入失败',
-      content: err.response?.data?.error || '批量导入失败',
+      title: t('model.importFailed'),
+      content: err.response?.data?.error || t('model.importFailed'),
       duration: 4000,
     });
   } finally {

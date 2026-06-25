@@ -3,35 +3,38 @@
     <div class="card-body">
       <h4 class="provider-id">{{ provider.id }}</h4>
       <div class="info-rows">
-        <div class="kv"><span class="kv-label">Base URL</span> <code>{{ provider.baseUrl }}</code></div>
-        <div class="kv"><span class="kv-label">API Type</span> <n-tag size="small">{{ provider.api }}</n-tag></div>
-        <div class="kv"><span class="kv-label">Auth</span> <span>{{ provider.auth || 'api-key' }}</span></div>
+        <div class="kv"><span class="kv-label">{{ $t('provider.baseUrl') }}</span> <code>{{ provider.baseUrl }}</code></div>
+        <div class="kv"><span class="kv-label">{{ $t('provider.apiType') }}</span> <n-tag size="small">{{ provider.api }}</n-tag></div>
+        <div class="kv"><span class="kv-label">{{ $t('provider.authMode') }}</span> <span>{{ provider.auth || 'api-key' }}</span></div>
         <div class="kv">
-          <span class="kv-label">API Key</span>
+          <span class="kv-label">{{ $t('provider.apiKey') }}</span>
           <span v-if="provider.apiKey" class="key-masked">{{ provider.apiKey }}</span>
-          <span v-else-if="provider._hasApiKey" class="key-hidden">●●●●●●●●●●</span>
-          <span v-else class="key-none">未设置</span>
+          <span v-else-if="provider._hasApiKey" class="key-hidden">{{ $t('provider.apiKeyHidden') }}</span>
+          <span v-else class="key-none">{{ $t('provider.apiKeyNotSet') }}</span>
         </div>
         <div class="kv">
-          <span class="kv-label">模型数</span>
-          <n-tag type="info" size="small">{{ provider.modelCount }} 个</n-tag>
+          <span class="kv-label">{{ $t('provider.modelCount') }}</span>
+          <n-tag type="info" size="small">{{ provider.modelCount }}</n-tag>
         </div>
       </div>
     </div>
     <div v-if="showActions" class="card-actions">
-      <n-button size="small" @click="$emit('view', provider.id)">详情</n-button>
-      <n-button size="small" @click="$emit('test', provider.id)">测试</n-button>
-      <n-button size="small" type="error" @click="$emit('delete', provider.id)">删除</n-button>
+      <n-button size="small" @click="$emit('view', provider.id)">{{ $t('provider.detail') }}</n-button>
+      <n-button size="small" @click="$emit('test', provider.id)">{{ $t('provider.test') }}</n-button>
+      <n-button size="small" type="error" @click="$emit('delete', provider.id)">{{ $t('provider.delete') }}</n-button>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
 defineProps({
   provider: { type: Object, required: true },
   showActions: { type: Boolean, default: true },
 });
 defineEmits(['view', 'test', 'delete']);
+const { t } = useI18n();
 </script>
 
 <style scoped>

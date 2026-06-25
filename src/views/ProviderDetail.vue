@@ -3,8 +3,8 @@
     <div class="provider-detail">
       <!-- 面包屑 -->
       <n-breadcrumb class="breadcrumb">
-        <n-breadcrumb-item @click="$router.push('/dashboard')">仪表盘</n-breadcrumb-item>
-        <n-breadcrumb-item @click="$router.push('/providers')">提供者</n-breadcrumb-item>
+        <n-breadcrumb-item @click="$router.push('/dashboard')">{{ $t('nav.dashboard') }}</n-breadcrumb-item>
+        <n-breadcrumb-item @click="$router.push('/providers')">{{ $t('nav.providers') }}</n-breadcrumb-item>
         <n-breadcrumb-item>{{ id }}</n-breadcrumb-item>
       </n-breadcrumb>
 
@@ -16,10 +16,10 @@
 
       <!-- 错误态 -->
       <n-card v-else-if="error" class="error-card">
-        <n-result status="error" title="加载失败" :description="error">
+        <n-result status="error" :title="$t('common.error')" :description="error">
           <template #footer>
-            <n-button @click="fetchData">重试</n-button>
-            <n-button @click="$router.push('/providers')">返回列表</n-button>
+            <n-button @click="fetchData">{{ $t('common.retry') }}</n-button>
+            <n-button @click="$router.push('/providers')">{{ $t('common.back') }}</n-button>
           </template>
         </n-result>
       </n-card>
@@ -33,32 +33,32 @@
             <n-space>
               <n-button size="small" @click="openEditDrawer">
                 <template #icon><n-icon><EditOutlined /></n-icon></template>
-                编辑
+                {{ $t('provider.edit') }}
               </n-button>
             </n-space>
           </div>
 
           <n-grid :cols="2" :x-gap="24" :y-gap="12" class="provider-info-grid">
             <n-grid-item>
-              <div class="kv"><span class="kv-label">Base URL</span> <code class="kv-code">{{ provider.baseUrl }}</code></div>
+              <div class="kv"><span class="kv-label">{{ $t('provider.baseUrl') }}</span> <code class="kv-code">{{ provider.baseUrl }}</code></div>
             </n-grid-item>
             <n-grid-item>
-              <div class="kv"><span class="kv-label">API Type</span> <n-tag size="small">{{ provider.api }}</n-tag></div>
+              <div class="kv"><span class="kv-label">{{ $t('provider.apiType') }}</span> <n-tag size="small">{{ provider.api }}</n-tag></div>
             </n-grid-item>
             <n-grid-item>
               <div class="kv">
-                <span class="kv-label">Auth Mode</span> <span>{{ provider.auth || 'api-key' }}</span>
+                <span class="kv-label">{{ $t('provider.authMode') }}</span> <span>{{ provider.auth || 'api-key' }}</span>
               </div>
             </n-grid-item>
             <n-grid-item>
               <div class="kv">
-                <span class="kv-label">API Key</span>
+                <span class="kv-label">{{ $t('provider.apiKey') }}</span>
                 <span v-if="provider.apiKey" class="api-key-masked">
                   {{ provider.apiKey }}
                   <n-button text size="tiny" type="primary" @click="copyApiKey(provider.apiKey)">📋</n-button>
                 </span>
-                <span v-else-if="provider._hasApiKey" class="api-key-hidden">●●●●●●●●●●</span>
-                <span v-else class="api-key-none">未设置</span>
+                <span v-else-if="provider._hasApiKey" class="api-key-hidden">{{ $t('provider.apiKeyHidden') }}</span>
+                <span v-else class="api-key-none">{{ $t('provider.apiKeyNotSet') }}</span>
               </div>
             </n-grid-item>
           </n-grid>
@@ -67,23 +67,23 @@
         <!-- Model 管理区 -->
         <n-card class="model-card">
           <div class="model-header">
-            <h3>模型管理 ({{ models.length }})</h3>
+            <h3>{{ $t('model.title') }} ({{ models.length }})</h3>
             <n-space>
               <n-button size="small" @click="openImportDrawer">
                 <template #icon><n-icon><ImportOutlined /></n-icon></template>
-                导入
+                {{ $t('model.import') }}
               </n-button>
               <n-button size="small" type="primary" @click="openCreateModel">
                 <template #icon><n-icon><PlusOutlined /></n-icon></template>
-                添加 Model
+                {{ $t('model.add') }}
               </n-button>
             </n-space>
           </div>
 
           <!-- 空态 -->
-          <n-empty v-if="models.length === 0" description="该 Provider 下暂无模型">
+          <n-empty v-if="models.length === 0" :description="$t('model.noModel')">
             <template #extra>
-              <n-button type="primary" @click="openCreateModel">添加第一个模型</n-button>
+              <n-button type="primary" @click="openCreateModel">{{ $t('model.addFirst') }}</n-button>
             </template>
           </n-empty>
 
@@ -130,10 +130,10 @@
       <n-modal
         v-model:show="deleteModelDialog"
         preset="dialog"
-        title="确认删除"
+        :title="$t('provider.confirmDelete')"
         :content="deleteModelConfirmContent"
-        positive-text="确认删除"
-        negative-text="取消"
+        :positive-text="$t('common.confirm')"
+        :negative-text="$t('common.cancel')"
         :positive-button-props="{ type: 'error' }"
         @positive-click="confirmDeleteModel"
       />
@@ -145,6 +145,7 @@
 import { ref, reactive, onMounted, computed, h } from 'vue';
 import { useNotification, NButton, NIcon, NTag } from 'naive-ui';
 import { PlusOutlined, EditOutlined, ImportOutlined } from '@vicons/antd';
+import { useI18n } from 'vue-i18n';
 import MainLayout from '@/layouts/MainLayout.vue';
 import ProviderDrawer from '@/components/organisms/ProviderDrawer.vue';
 import ModelDrawer from '@/components/organisms/ModelDrawer.vue';
@@ -153,6 +154,7 @@ import api from '@/api';
 
 const props = defineProps({ id: String });
 const notification = useNotification();
+const { t } = useI18n();
 
 const loading = ref(true);
 const error = ref('');
@@ -177,32 +179,32 @@ const deleteModelTarget = ref(null);
 // 删除确认内容（避免模板中嵌套引号）
 const deleteModelConfirmContent = computed(() => {
   const id = deleteModelTarget.value?.id || '';
-  return `确定要删除 Model "${id}" 吗？`;
+  return t('model.deleteConfirm', { id });
 });
 
 // Model 表格列
-const modelColumns = [
+const modelColumns = computed(() => [
   {
-    title: 'Model ID',
+    title: t('model.modelId'),
     key: 'id',
     width: 200,
     render: (row) => h('code', { class: 'id-code' }, row.id),
   },
   {
-    title: '名称',
+    title: t('model.modelName'),
     key: 'name',
     width: 180,
     render: (row) => row.name || row.id,
   },
   {
-    title: '推理',
+    title: t('model.reasoning'),
     key: 'reasoning',
     width: 60,
     align: 'center',
     render: (row) => row.reasoning ? '🧠' : '',
   },
   {
-    title: 'Input Types',
+    title: t('model.inputTypes'),
     key: 'input',
     width: 150,
     render: (row) => {
@@ -214,13 +216,13 @@ const modelColumns = [
     },
   },
   {
-    title: 'Context Window',
+    title: t('model.contextWindow'),
     key: 'contextWindow',
     width: 120,
     render: (row) => row.contextWindow ? formatNumber(row.contextWindow) : '-',
   },
   {
-    title: 'Max Tokens',
+    title: t('model.maxTokens'),
     key: 'maxTokens',
     width: 110,
     render: (row) => row.maxTokens ? formatNumber(row.maxTokens) : '-',
@@ -236,17 +238,17 @@ const modelColumns = [
     },
   },
   {
-    title: '操作',
+    title: t('model.actions'),
     key: 'actions',
     width: 120,
     render: (row) => {
       return h('div', { class: 'action-btns' }, [
-        h(NButton, { size: 'tiny', quaternary: true, type: 'primary', onClick: () => editModel(row) }, { default: () => '编辑' }),
-        h(NButton, { size: 'tiny', quaternary: true, type: 'error', onClick: () => promptDeleteModel(row) }, { default: () => '删除' }),
+        h(NButton, { size: 'tiny', quaternary: true, type: 'primary', onClick: () => editModel(row) }, { default: () => t('model.edit') }),
+        h(NButton, { size: 'tiny', quaternary: true, type: 'error', onClick: () => promptDeleteModel(row) }, { default: () => t('model.delete') }),
       ]);
     },
   },
-];
+]);
 
 function formatNumber(n) {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
@@ -265,7 +267,7 @@ async function fetchData() {
     provider.value = providerRes.data.provider;
     models.value = modelsRes.data.models || [];
   } catch (err) {
-    error.value = err.response?.data?.error || '获取数据失败';
+    error.value = err.response?.data?.error || t('common.error');
   } finally {
     loading.value = false;
   }
@@ -312,17 +314,16 @@ async function confirmDeleteModel() {
   if (!deleteModelTarget.value) return;
   try {
     await api.delete(`/providers/${props.id}/models/${deleteModelTarget.value.id}`);
-    notification.success({ title: '删除成功', content: `Model "${deleteModelTarget.value.id}" 已删除`, duration: 3000 });
+    notification.success({ title: t('model.deleteSuccess', { id: deleteModelTarget.value.id }), duration: 3000 });
     fetchData();
   } catch (err) {
-    notification.error({ title: '删除失败', content: err.response?.data?.error || '删除失败', duration: 3000 });
+    notification.error({ title: t('model.deleteFailed'), content: err.response?.data?.error || t('model.deleteFailed'), duration: 3000 });
   }
   deleteModelTarget.value = null;
 }
 
 function copyApiKey(key) {
-  // 这里 key 已经是脱敏的，只能提示用户
-  notification.info({ title: '提示', content: 'API Key 已脱敏，编辑 Provider 可查看/修改完整值', duration: 3000 });
+  notification.info({ title: t('common.apiKeyInfo'), duration: 3000 });
 }
 
 onMounted(fetchData);

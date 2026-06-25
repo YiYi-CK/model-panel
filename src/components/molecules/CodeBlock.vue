@@ -6,10 +6,13 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
 defineProps({
   text: { type: String, default: '' },
   label: { type: String, default: '' },
 });
+const { t } = useI18n();
 </script>
 
 <style scoped>

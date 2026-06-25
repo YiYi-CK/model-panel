@@ -3,9 +3,12 @@
     <!-- 顶部导航 -->
     <n-layout-header bordered class="nav-header">
       <div class="nav-left">
-        <span class="logo" @click="$router.push('/dashboard')">🦊 OpenClaw 模型管理</span>
+        <span class="logo" @click="$router.push('/dashboard')">{{ $t('app.title') }}</span>
       </div>
       <div class="nav-right">
+        <n-button text @click="toggleLang">
+          {{ $t('nav.lang') }}
+        </n-button>
         <n-dropdown :options="userMenuOptions" @select="handleUserMenu">
           <n-button text>
             <template #icon><n-icon><UserOutlined /></n-icon></template>
@@ -43,12 +46,14 @@
 <script setup>
 import { h, computed, ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { NIcon } from 'naive-ui';
 import { UserOutlined, DashboardOutlined, CloudServerOutlined, LogoutOutlined } from '@vicons/antd';
 import api from '@/api';
 
 const router = useRouter();
 const route = useRoute();
+const { t, locale } = useI18n();
 const username = ref('');
 
 onMounted(async () => {
@@ -65,14 +70,14 @@ const currentRoute = computed(() => {
   return route.path;
 });
 
-const menuOptions = [
-  { label: '仪表盘', key: '/dashboard', icon: renderIcon(DashboardOutlined) },
-  { label: '提供者管理', key: 'providers', icon: renderIcon(CloudServerOutlined) },
-];
+const menuOptions = computed(() => [
+  { label: t('nav.dashboard'), key: '/dashboard', icon: renderIcon(DashboardOutlined) },
+  { label: t('nav.providers'), key: 'providers', icon: renderIcon(CloudServerOutlined) },
+]);
 
-const userMenuOptions = [
-  { label: '登出', key: 'logout', icon: renderIcon(LogoutOutlined) },
-];
+const userMenuOptions = computed(() => [
+  { label: t('nav.logout'), key: 'logout', icon: renderIcon(LogoutOutlined) },
+]);
 
 function renderIcon(icon) {
   return () => h(NIcon, null, { default: () => h(icon) });
@@ -87,6 +92,12 @@ async function handleUserMenu(key) {
     await api.post('/auth/logout');
     router.push('/login');
   }
+}
+
+function toggleLang() {
+  const newLocale = locale.value === 'zh-CN' ? 'en' : 'zh-CN';
+  locale.value = newLocale;
+  localStorage.setItem('model-panel-lang', newLocale);
 }
 </script>
 

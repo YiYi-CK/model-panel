@@ -2,17 +2,17 @@
   <MainLayout>
     <div class="providers-page">
       <div class="page-header">
-        <h2 class="page-title">提供者管理</h2>
+        <h2 class="page-title">{{ $t('provider.title') }}</h2>
         <n-button type="primary" @click="openCreateDrawer">
           <template #icon><n-icon><PlusOutlined /></n-icon></template>
-          添加 Provider
+          {{ $t('provider.add') }}
         </n-button>
       </div>
 
       <!-- 搜索 -->
       <n-input
         v-model:value="searchQuery"
-        placeholder="搜索 Provider..."
+        :placeholder="$t('provider.search')"
         clearable
         class="search-input"
       >
@@ -24,16 +24,16 @@
 
       <!-- 空态 -->
       <n-card v-else-if="filteredProviders.length === 0 && !searchQuery" class="empty-card">
-        <n-empty description="还没有配置任何 Provider">
+        <n-empty :description="$t('provider.noProvider')">
           <template #extra>
-            <n-button type="primary" @click="openCreateDrawer">添加第一个 Provider</n-button>
+            <n-button type="primary" @click="openCreateDrawer">{{ $t('provider.add') }}</n-button>
           </template>
         </n-empty>
       </n-card>
 
       <!-- 搜索无结果 -->
       <n-card v-else-if="filteredProviders.length === 0 && searchQuery" class="empty-card">
-        <n-empty description="没有匹配的 Provider" />
+        <n-empty :description="$t('provider.noMatch')" />
       </n-card>
 
       <!-- Provider 表格 -->
@@ -59,10 +59,10 @@
       <n-modal
         v-model:show="deleteDialogShow"
         preset="dialog"
-        title="确认删除"
+        :title="$t('provider.confirmDelete')"
         :content="deleteConfirmContent"
-        positive-text="确认删除"
-        negative-text="取消"
+        :positive-text="$t('common.confirm')"
+        :negative-text="$t('common.cancel')"
         :positive-button-props="{ type: 'error' }"
         @positive-click="confirmDelete"
       />
@@ -75,12 +75,14 @@ import { ref, computed, onMounted, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { useNotification, NButton, NIcon, NTag } from 'naive-ui';
 import { PlusOutlined, SearchOutlined } from '@vicons/antd';
+import { useI18n } from 'vue-i18n';
 import MainLayout from '@/layouts/MainLayout.vue';
 import ProviderDrawer from '@/components/organisms/ProviderDrawer.vue';
 import api from '@/api';
 
 const router = useRouter();
 const notification = useNotification();
+const { t } = useI18n();
 
 const loading = ref(true);
 const providers = ref([]);
@@ -98,7 +100,7 @@ const deleteTarget = ref(null);
 // 删除确认内容（避免模板中嵌套引号）
 const deleteConfirmContent = computed(() => {
   const id = deleteTarget.value?.id || '';
-  return `确定要删除 Provider "${id}" 吗？该操作将同时删除其下所有 Model，且不可撤销。`;
+  return t('provider.deleteConfirm', { id });
 });
 
 // 过滤后的列表
@@ -111,43 +113,43 @@ const filteredProviders = computed(() => {
 });
 
 // 表格列定义
-const columns = [
+const columns = computed(() => [
   {
-    title: 'Provider ID',
+    title: t('provider.providerId'),
     key: 'id',
     width: 180,
     render: (row) => h('code', { class: 'provider-id-code' }, row.id),
   },
   {
-    title: 'Base URL',
+    title: t('provider.baseUrl'),
     key: 'baseUrl',
     ellipsis: { tooltip: true },
   },
   {
-    title: 'API Type',
+    title: t('provider.apiType'),
     key: 'api',
     width: 180,
     render: (row) => h(NTag, { size: 'small', bordered: false }, { default: () => row.api }),
   },
   {
-    title: '模型数',
+    title: t('provider.modelCount'),
     key: 'modelCount',
     width: 80,
     align: 'center',
   },
   {
-    title: '操作',
+    title: t('provider.actions'),
     key: 'actions',
     width: 200,
     render: (row) => {
       return h('div', { class: 'action-btns' }, [
-        h(NButton, { size: 'small', quaternary: true, type: 'primary', onClick: () => viewProvider(row.id) }, { default: () => '详情' }),
-        h(NButton, { size: 'small', quaternary: true, onClick: () => testConnection(row) }, { default: () => '测试' }),
-        h(NButton, { size: 'small', quaternary: true, type: 'error', onClick: () => promptDelete(row) }, { default: () => '删除' }),
+        h(NButton, { size: 'small', quaternary: true, type: 'primary', onClick: () => viewProvider(row.id) }, { default: () => t('provider.detail') }),
+        h(NButton, { size: 'small', quaternary: true, onClick: () => testConnection(row) }, { default: () => t('provider.test') }),
+        h(NButton, { size: 'small', quaternary: true, type: 'error', onClick: () => promptDelete(row) }, { default: () => t('provider.delete') }),
       ]);
     },
   },
-];
+]);
 
 async function fetchProviders() {
   loading.value = true;
@@ -155,7 +157,7 @@ async function fetchProviders() {
     const res = await api.get('/providers');
     providers.value = res.data.providers || [];
   } catch (err) {
-    notification.error({ title: '加载失败', content: err.response?.data?.error || '获取 Provider 列表失败', duration: 3000 });
+    notification.error({ title: t('common.error'), content: err.response?.data?.error || t('provider.fetchFailed'), duration: 3000 });
   } finally {
     loading.value = false;
   }
@@ -172,16 +174,16 @@ function viewProvider(id) {
 }
 
 async function testConnection(provider) {
-  notification.info({ title: '测试中', content: `正在测试 ${provider.baseUrl} ...`, duration: 2000 });
+  notification.info({ title: t('connection.testing'), content: `${provider.baseUrl} ...`, duration: 2000 });
   try {
     const res = await api.post('/test-connection', { baseUrl: provider.baseUrl });
     if (res.data.success) {
-      notification.success({ title: '连接成功', content: res.data.message, duration: 3000 });
+      notification.success({ title: t('connection.success'), content: res.data.message, duration: 3000 });
     } else {
-      notification.error({ title: '连接失败', content: res.data.error, duration: 4000 });
+      notification.error({ title: t('connection.failed'), content: res.data.error, duration: 4000 });
     }
   } catch (err) {
-    notification.error({ title: '测试失败', content: err.response?.data?.error || '测试请求失败', duration: 3000 });
+    notification.error({ title: t('connection.failed'), content: err.response?.data?.error || t('connection.failed'), duration: 3000 });
   }
 }
 
@@ -194,10 +196,10 @@ async function confirmDelete() {
   if (!deleteTarget.value) return;
   try {
     await api.delete(`/providers/${deleteTarget.value.id}`);
-    notification.success({ title: '删除成功', content: `Provider "${deleteTarget.value.id}" 已删除`, duration: 3000 });
+    notification.success({ title: t('provider.deleteSuccess', { id: deleteTarget.value.id }), duration: 3000 });
     fetchProviders();
   } catch (err) {
-    notification.error({ title: '删除失败', content: err.response?.data?.error || '删除失败', duration: 3000 });
+    notification.error({ title: t('provider.deleteFailed'), content: err.response?.data?.error || t('provider.deleteFailed'), duration: 3000 });
   }
   deleteTarget.value = null;
 }

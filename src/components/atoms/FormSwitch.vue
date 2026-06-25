@@ -5,9 +5,12 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
 defineProps({
   modelValue: { type: Boolean, default: false },
   label: { type: String, default: '' },
 });
 defineEmits(['update:modelValue']);
+const { t } = useI18n();
 </script>

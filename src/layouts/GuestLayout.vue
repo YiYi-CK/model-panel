@@ -3,11 +3,13 @@
     <n-card class="login-card" :bordered="true">
       <slot />
     </n-card>
-    <div class="footer">yiyi-vm (Ubuntu)</div>
+    <div class="footer">{{ $t('app.host') }}</div>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 </script>
 
 <style scoped>

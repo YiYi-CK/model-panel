@@ -8,10 +8,13 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
 defineProps({
-  text: { type: String, default: '加载中...' },
+  text: { type: String, default: '' },
   inline: { type: Boolean, default: false },
 });
+const { t } = useI18n();
 </script>
 
 <style scoped>

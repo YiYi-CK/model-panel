@@ -1,9 +1,9 @@
 <template>
   <n-collapse>
-    <n-collapse-item title="成本配置 (可选)" name="cost">
+    <n-collapse-item :title="$t('model.cost')" name="cost">
       <n-grid :cols="2" :x-gap="12">
         <n-grid-item>
-          <n-form-item label="Input ($/M)">
+          <n-form-item :label="$t('model.costInput')">
             <n-input-number
               :value="modelValue?.input"
               :min="0"
@@ -15,7 +15,7 @@
           </n-form-item>
         </n-grid-item>
         <n-grid-item>
-          <n-form-item label="Output ($/M)">
+          <n-form-item :label="$t('model.costOutput')">
             <n-input-number
               :value="modelValue?.output"
               :min="0"
@@ -27,7 +27,7 @@
           </n-form-item>
         </n-grid-item>
         <n-grid-item>
-          <n-form-item label="Cache Read ($/M)">
+          <n-form-item :label="$t('model.costCacheRead')">
             <n-input-number
               :value="modelValue?.cacheRead"
               :min="0"
@@ -39,7 +39,7 @@
           </n-form-item>
         </n-grid-item>
         <n-grid-item>
-          <n-form-item label="Cache Write ($/M)">
+          <n-form-item :label="$t('model.costCacheWrite')">
             <n-input-number
               :value="modelValue?.cacheWrite"
               :min="0"
@@ -56,10 +56,13 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+
 const props = defineProps({
   modelValue: { type: Object, default: () => ({ input: null, output: null, cacheRead: null, cacheWrite: null }) },
 });
 const emit = defineEmits(['update:modelValue']);
+const { t } = useI18n();
 
 function update(key, val) {
   emit('update:modelValue', { ...props.modelValue, [key]: val });

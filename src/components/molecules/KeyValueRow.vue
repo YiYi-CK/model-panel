@@ -8,6 +8,7 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
 import CopyButton from '@/components/atoms/CopyButton.vue';
 
 defineProps({
@@ -16,6 +17,7 @@ defineProps({
   monospace: { type: Boolean, default: false },
   copyable: { type: Boolean, default: false },
 });
+const { t } = useI18n();
 </script>
 
 <style scoped>

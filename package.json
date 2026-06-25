@@ -1,0 +1,25 @@
+{
+  "name": "openclaw-model-panel",
+  "version": "1.0.0",
+  "description": "OpenClaw 模型管理面板 — Web UI for managing LLM providers and models",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1"
+  },
+  "devDependencies": {
+    "@vicons/antd": "^0.13.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "axios": "^1.7.9",
+    "naive-ui": "^2.40.1",
+    "vite": "^6.0.5",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  }
+}

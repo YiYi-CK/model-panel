@@ -1,5 +1,11 @@
 <template>
   <div class="guest-layout">
+    <!-- 语言切换 -->
+    <div class="lang-switch">
+      <n-button text size="small" @click="toggleLang">
+        {{ $t('nav.lang') }}
+      </n-button>
+    </div>
     <n-card class="login-card" :bordered="true">
       <slot />
     </n-card>
@@ -9,11 +15,24 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
+const { t, locale } = useI18n();
+
+function toggleLang() {
+  const newLocale = locale.value === 'zh-CN' ? 'en' : 'zh-CN';
+  locale.value = newLocale;
+  localStorage.setItem('model-panel-lang', newLocale);
+}
 </script>
 
 <style scoped>
+.lang-switch {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+}
+
 .guest-layout {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;

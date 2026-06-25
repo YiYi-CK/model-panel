@@ -78,7 +78,7 @@ function getDashboard() {
   // 读取默认模型
   let defaultModel = '';
   try {
-    defaultModel = execSync('openclaw config get defaultModel', {
+    defaultModel = execSync('openclaw config get agents.defaults.model.primary', {
       encoding: 'utf8',
       timeout: 5000,
     }).trim().replace(/^"|"$/g, '');

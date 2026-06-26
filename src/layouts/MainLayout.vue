@@ -48,7 +48,7 @@ import { h, computed, ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { NIcon } from 'naive-ui';
-import { UserOutlined, DashboardOutlined, CloudServerOutlined, LogoutOutlined } from '@vicons/antd';
+import { UserOutlined, DashboardOutlined, CloudServerOutlined, RobotOutlined, LogoutOutlined } from '@vicons/antd';
 import api from '@/api';
 
 const router = useRouter();
@@ -67,12 +67,14 @@ onMounted(async () => {
 
 const currentRoute = computed(() => {
   if (route.path.startsWith('/providers')) return 'providers';
+  if (route.path.startsWith('/agents')) return 'agents';
   return route.path;
 });
 
 const menuOptions = computed(() => [
   { label: t('nav.dashboard'), key: '/dashboard', icon: renderIcon(DashboardOutlined) },
   { label: t('nav.providers'), key: 'providers', icon: renderIcon(CloudServerOutlined) },
+  { label: t('nav.agents'), key: 'agents', icon: renderIcon(RobotOutlined) },
 ]);
 
 const userMenuOptions = computed(() => [

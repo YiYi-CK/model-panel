@@ -11,6 +11,7 @@ const { applyPatch } = require('./patcher');
 const providerController = require('./provider');
 const modelController = require('./model');
 const { testConnection } = require('./util');
+const { getAgents, getAvailableModels, updateAgentModel } = require('./agent');
 
 const app = express();
 const PORT = process.env.PORT || 3020;
@@ -121,6 +122,45 @@ app.post('/api/providers/:id/models/import', requireAuth, modelController.import
 app.get('/api/providers/:id/models/:mid', requireAuth, modelController.get);
 app.put('/api/providers/:id/models/:mid', requireAuth, modelController.update);
 app.delete('/api/providers/:id/models/:mid', requireAuth, modelController.remove);
+
+// ──────────────────────────────────────────────
+// Agent 路由
+// ──────────────────────────────────────────────
+app.get('/api/agents', requireAuth, (req, res) => {
+  try {
+    const agents = getAgents();
+    const models = getAvailableModels();
+    res.json({ agents, models });
+  } catch (err) {
+    console.error('[Agents list error]', err.message);
+    res.status(500).json({ error: '获取 Agent 列表失败' });
+  }
+});
+
+app.put('/api/agents/:id/model', requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const { model } = req.body;
+
+  if (!model || typeof model !== 'string' || !model.includes('/')) {
+    return res.status(400).json({ error: '模型格式不正确（格式: provider/model-id）' });
+  }
+
+  // ID 合法性校验
+  if (!/^[a-zA-Z0-9_.-]{1,64}$/.test(id)) {
+    return res.status(400).json({ error: '无效的 Agent ID' });
+  }
+
+  try {
+    const result = await updateAgentModel(id, model);
+    if (!result.success) {
+      return res.status(400).json({ error: `设置失败: ${result.error}` });
+    }
+    res.json({ ok: true, message: `Agent "${id}" 模型已更新至 ${model}` });
+  } catch (err) {
+    console.error('[Agent model update error]', err.message);
+    res.status(500).json({ error: '修改 Agent 模型失败' });
+  }
+});
 
 // ──────────────────────────────────────────────
 // 工具路由

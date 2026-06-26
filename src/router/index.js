@@ -28,6 +28,12 @@ const routes = [
     props: true,
   },
   {
+    path: '/agents',
+    name: 'Agents',
+    component: () => import('@/views/Agents.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/dashboard',
   },
